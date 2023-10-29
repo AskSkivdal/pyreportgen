@@ -4,6 +4,7 @@ setup(
     name="pyreportgen",
     version="0.1.0",
     description="A package for creating reports and other pdf documents.",
+    long_description=open('readme.md').read(),
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
