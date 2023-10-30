@@ -1,7 +1,9 @@
 import re
-import pyreportgen.helpers
-import pyreportgen.style
 import os
+import pyreportgen.style as style
+import pyreportgen.layout as layout
+import pyreportgen.helpers as helpers
+import pyreportgen.statistic as statistic
 
 _DATA_DIR = ".pyreportgen_data"
 
@@ -20,7 +22,7 @@ class Component:
         return f"""<p style="color: red">Component {self.__repr__().replace("<", "&lt;").replace(">", "&gt;")} has no renderer</p>"""
 
 class Report(Component):
-    def __init__(self, children=[], style:str=pyreportgen.style.STYLE_NORMAL):
+    def __init__(self, children=[], style:str=style.STYLE_NORMAL):
         super().__init__()
         self.children = children
         self.style = style

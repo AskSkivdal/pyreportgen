@@ -5,7 +5,7 @@ print(os.curdir)
 
 setup(
     name="pyreportgen",
-    version="0.1.0",
+    version="0.1.1",
     description="A package for creating reports and other pdf documents.",
     long_description=
 """
