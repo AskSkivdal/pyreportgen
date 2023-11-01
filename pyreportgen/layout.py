@@ -56,3 +56,15 @@ class PageBreak(Component):
     
     def render(self) -> str:
         return "<div class='PageBreak'></div>"
+    
+class List(Component):
+    def __init__(self, elements:list[str | Component]):
+        super().__init__()
+        self.elements = elements
+
+    def render(self) -> str:
+        html = ""
+        for el in self.elements:
+            html += f"<li>{el}</li>"
+        
+        return f"<ul>{html}</ul>" 

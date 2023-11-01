@@ -1,4 +1,5 @@
 import uuid
+from pyreportgen.base import _DATA_DIR
 import os
 
 def clamp(num, min, max):
@@ -9,7 +10,7 @@ def clamp(num, min, max):
     return num
 
 def random_path(filetype):
-    return f".pyreportgen_data/{str(uuid.uuid4())}."+filetype
+    return f"{_DATA_DIR}/{str(uuid.uuid4())}."+filetype
 
 def to_html_path(path):
     return "file://"+str(os.path.abspath('index.html'))
