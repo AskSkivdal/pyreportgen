@@ -14,3 +14,6 @@ def random_path(filetype):
 
 def to_html_path(path):
     return "file://"+str(os.path.abspath('index.html'))
+
+def tagwrap(content:str, tag:str) -> str:
+    return f"<{tag}>{content}</{tag}>"

@@ -58,7 +58,7 @@ class PageBreak(Component):
         return "<div class='PageBreak'></div>"
     
 class List(Component):
-    def __init__(self, elements:list[str | Component]):
+    def __init__(self, elements:list[str]):
         super().__init__()
         self.elements = elements
 
