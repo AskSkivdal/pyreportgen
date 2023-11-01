@@ -4,8 +4,9 @@ import pyreportgen.style as style
 import pyreportgen.layout as layout
 import pyreportgen.helpers as helpers
 import pyreportgen.statistic as statistic
+from pyreportgen.base import Component, _DATA_DIR
 
-_DATA_DIR = ".pyreportgen_data"
+
 
 if not (_DATA_DIR in os.listdir()):
     os.makedirs(_DATA_DIR, exist_ok=True)
@@ -13,13 +14,7 @@ if not (_DATA_DIR in os.listdir()):
 
 _RE_COMBINE_WHITESPACE = re.compile(r"\s+")
 
-class Component:
-    def __init__(self):
-        pass
 
-    def render(self) -> str:
-        print(f"Component {self} has no renderer.")
-        return f"""<p style="color: red">Component {self.__repr__().replace("<", "&lt;").replace(">", "&gt;")} has no renderer</p>"""
 
 class Report(Component):
     def __init__(self, children=[], style:str=style.STYLE_NORMAL):

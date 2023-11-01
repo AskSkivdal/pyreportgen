@@ -1,4 +1,4 @@
-from pyreportgen import Component, Image, _DATA_DIR
+from pyreportgen.base import Component, _DATA_DIR
 import matplotlib.pyplot as plt
 import numpy as np
 import pyreportgen.helpers

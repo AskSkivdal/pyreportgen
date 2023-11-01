@@ -1,4 +1,4 @@
-from pyreportgen import Component, _DATA_DIR
+from pyreportgen.base import Component, _DATA_DIR
 import pyreportgen.helpers
 # import the folium library
 import folium

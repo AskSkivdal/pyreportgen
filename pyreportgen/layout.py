@@ -1,4 +1,6 @@
-from pyreportgen import Component
+
+from pyreportgen.base import Component
+
 
 
 class HBox(Component):
@@ -47,3 +49,10 @@ class HCenterContent(Component):
         self.child = child
     def render(self) -> str:
         return f"""<div class="HCenterContent">{self.child.render()}</div>"""
+    
+class PageBreak(Component):
+    def __init__(self):
+        super().__init__()
+    
+    def render(self) -> str:
+        return "<div class='PageBreak'></div>"

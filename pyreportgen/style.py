@@ -73,6 +73,9 @@ tr:nth-child(even) {
         page-break-inside: avoid;
         break-inside: avoid;
     }
+    .PageBreak {
+        page-break-after: always;
+    }
 }
 
 @media not print {
