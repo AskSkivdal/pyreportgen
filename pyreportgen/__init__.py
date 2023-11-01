@@ -1,5 +1,6 @@
 import re
 import os
+import matplotlib
 import pyreportgen.style as style
 import pyreportgen.layout as layout
 import pyreportgen.helpers as helpers
@@ -72,7 +73,7 @@ class Text(Component):
         if self.center:
             classlist += "CenterText "
 
-        return f"""<{self.element} class="{classlist}">{self.text}</{self.element}>"""
+        return helpers.tagwrap(self.text, self.element, classList=classlist)
 
 class Header(Text):
     def __init__(self, text, center=True, heading=1):
@@ -88,4 +89,4 @@ class Image(Component):
         self.src = src
     
     def render(self) -> str:
-        return f"""<img class="Image" src="../{self.src}">"""
+        return helpers.tagwrap("", "img", "Image", f"src='../{self.src}'")

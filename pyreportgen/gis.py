@@ -1,5 +1,5 @@
 from pyreportgen.base import Component, _DATA_DIR
-import pyreportgen.helpers
+import pyreportgen.helpers as helpers
 # import the folium library
 import folium
 import io
@@ -12,7 +12,7 @@ class MapGeoJson(Component):
         super().__init__()
         self.geojson = geojson
         self.zoom = zoom
-        self.path = pyreportgen.helpers.random_path("png")
+        self.path = helpers.random_path("png")
 
     
     def render(self) -> str:
@@ -39,5 +39,4 @@ class MapGeoJson(Component):
         img_data = m._to_png(3)
         img = Image.open(io.BytesIO(img_data))
         img.save(self.path)
-
-        return f"<img src='{self.path.lstrip(_DATA_DIR+'/')}' class='Map'>"
+        return helpers.tagwrap("", "img", "Map", f"src='{self.path.lstrip(_DATA_DIR+'/')}'")

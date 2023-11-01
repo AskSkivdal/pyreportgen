@@ -1,6 +1,6 @@
 
 from pyreportgen.base import Component
-
+import pyreportgen.helpers as helpers 
 
 
 class HBox(Component):
@@ -15,13 +15,8 @@ class HBox(Component):
             html += i.render()
 
         
+        return helpers.tagwrap(html, "div", "HBox")
 
-        return f"""
-            <div class="HBox">
-                {html}
-            </div>
-
-"""
     
 class VBox(Component):
     def __init__(self, children=[]):
@@ -34,28 +29,21 @@ class VBox(Component):
         for i in self.children:
             html += i.render()
 
-        
-
-        return f"""
-            <div class="VBox NoBreak">
-                {html}
-            </div>
-
-"""
+        return helpers.tagwrap(html, "div", "VBox NoBreak")
     
 class HCenterContent(Component):
     def __init__(self, child:Component):
         super().__init__()
         self.child = child
     def render(self) -> str:
-        return f"""<div class="HCenterContent">{self.child.render()}</div>"""
+        return helpers.tagwrap(self.child.render(), "div", "HCenterContent")
     
 class PageBreak(Component):
     def __init__(self):
         super().__init__()
     
     def render(self) -> str:
-        return "<div class='PageBreak'></div>"
+        return helpers.tagwrap("", "div", "PageBreak")
     
 class List(Component):
     def __init__(self, elements:list[str]):
@@ -65,6 +53,6 @@ class List(Component):
     def render(self) -> str:
         html = ""
         for el in self.elements:
-            html += f"<li>{el}</li>"
+            html += helpers.tagwrap(el, "li")
         
-        return f"<ul>{html}</ul>" 
+        return helpers.tagwrap(html, "ul")
