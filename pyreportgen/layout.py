@@ -46,13 +46,22 @@ class PageBreak(Component):
         return helpers.tagwrap("", "div", "PageBreak")
     
 class List(Component):
-    def __init__(self, elements:list[str]):
+    def __init__(self, elements:list[str], numbered=False, start=1):
         super().__init__()
         self.elements = elements
+        self.numbered = numbered
+        self.start = start
 
     def render(self) -> str:
         html = ""
+        element = ""
+        if self.numbered:
+            element = "ol"
+        else:
+            element = "ul"
+
+
         for el in self.elements:
             html += helpers.tagwrap(el, "li")
         
-        return helpers.tagwrap(html, "ul")
+        return helpers.tagwrap(html, element, props=f"start='{self.start}'")
