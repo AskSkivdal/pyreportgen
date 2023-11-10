@@ -38,7 +38,7 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .Image {
-    width: 300px;
+    width: 100%;
 }
 
 .HBarPlot {
@@ -66,6 +66,16 @@ tr:nth-child(even) {
 
 .tfoot {
     font-weight: bold;
+}
+
+.Box {
+
+}
+
+.Box.ColorInfo {
+    background-color: rgb(223, 223, 223);
+    border: 3px solid gray;
+    border-radius: 10px;
 }
 
 @media print {

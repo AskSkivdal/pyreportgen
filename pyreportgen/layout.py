@@ -3,10 +3,27 @@ from pyreportgen.base import Component
 import pyreportgen.helpers as helpers 
 
 
-class HBox(Component):
-    def __init__(self, children=[]):
+class Box(Component):
+    def __init__(self, children: list[Component]=[], color:str="Info"):
+        self.children:list[Component] = children
+        self.color:str = color
+    
+    def render(self) -> str:
+        html = ""
+        for i in self.children:
+            html += i.render()
+        return helpers.tagwrap(html, "div", f"Box Color{self.color}")
+
+class Empty(Component):
+    def __init__(self):
         super().__init__()
-        self.children = children
+    def render(self) -> str:
+        return helpers.tagwrap("", "div")
+
+class HBox(Component):
+    def __init__(self, children:list[Component]=[]):
+        super().__init__()
+        self.children:list[Component] = children
     
     def render(self) -> str:
         html = ""
@@ -19,9 +36,9 @@ class HBox(Component):
 
     
 class VBox(Component):
-    def __init__(self, children=[]):
+    def __init__(self, children:list[Component]=[]):
         super().__init__()
-        self.children = children
+        self.children:list[Component] = children
     
     def render(self) -> str:
         html = ""
@@ -34,7 +51,7 @@ class VBox(Component):
 class HCenterContent(Component):
     def __init__(self, child:Component):
         super().__init__()
-        self.child = child
+        self.child:Component = child
     def render(self) -> str:
         return helpers.tagwrap(self.child.render(), "div", "HCenterContent")
     
@@ -46,11 +63,11 @@ class PageBreak(Component):
         return helpers.tagwrap("", "div", "PageBreak")
     
 class List(Component):
-    def __init__(self, elements:list[str], numbered=False, start=1):
+    def __init__(self, elements:list[str], numbered:bool=False, start:int=1):
         super().__init__()
-        self.elements = elements
-        self.numbered = numbered
-        self.start = start
+        self.elements:list[str] = elements
+        self.numbered:bool = numbered
+        self.start:int = start
 
     def render(self) -> str:
         html = ""

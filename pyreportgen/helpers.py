@@ -15,5 +15,8 @@ def random_path(filetype):
 def to_html_path(path):
     return "file://"+str(os.path.abspath('index.html'))
 
-def tagwrap(content:str, tag:str, classList="", props="") -> str:
-    return f"<{tag} class='{classList}' {props}>{content}</{tag}>"
+def tagwrap(content:str, tag:str, classList="", props="", close=True) -> str:
+    if close:
+        return f"<{tag} class='{classList}' {props}>{content}</{tag}>"
+    else:
+        return f"<{tag} class='{classList}' {props} />"

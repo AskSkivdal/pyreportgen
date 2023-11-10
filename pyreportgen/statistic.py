@@ -27,7 +27,7 @@ class HBarPlot(Component):
 
         plt.savefig(self.path, dpi=150)
 
-        return helpers.tagwrap("", "img", "HBarPlot", f'src="{self.path.lstrip(_DATA_DIR+"/")}"')
+        return helpers.tagwrap("", "img", "HBarPlot", f'src="{self.path.lstrip(_DATA_DIR+"/")}"', close=False)
     
 class Table(Component):
     def __init__(self, data: list[list[str]], headers: list[str]=[], footers: list[str]=[]):
