@@ -138,6 +138,22 @@ class Html(Component):
         self.html = html
     def render(self) -> str:
         return self.html
+    
+class ConditionalHtml(Component):
+    def __init__(self, filepath:str, children:list[Component] = []):
+        super().__init__()
+        self.filepath:str = filepath
+        self.children:list[Component] = children
+    
+    def render(self) -> str:
+        if os.path.isfile(self.filepath):
+            html = open(self.filepath, "r").read()
+        else:
+            html = ""
+            for i in self.children:
+                html += i.render()
+        return helpers.tagwrap(html, "div")
+
 
 class Text(Component):
     element = "p"
