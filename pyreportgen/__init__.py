@@ -147,7 +147,7 @@ class ConditionalHtml(Component):
     
     def render(self) -> str:
         if os.path.isfile(self.filepath):
-            html = open(self.filepath, "r").read()
+            html = open(self.filepath, "r", encoding="UTF-8").read()
         else:
             html = ""
             for i in self.children:

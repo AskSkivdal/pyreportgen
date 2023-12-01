@@ -8,7 +8,7 @@ print(find_packages("./pyreportgen/", include="__init__.py"))
 
 setup(
     name="pyreportgen",
-    version="0.1.4",
+    version="0.1.5",
     description="A package for creating reports and other pdf documents.",
     long_description=readme,
     long_description_content_type='text/markdown',
