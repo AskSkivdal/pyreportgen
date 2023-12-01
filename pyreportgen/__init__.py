@@ -60,7 +60,7 @@ class Report(Component):
 
         pdfkit.from_file(_DATA_DIR+'/out.html', path, options={"--enable-local-file-access":None, "--print-media-type":None})
     
-    def email(self, user:str, password:str, subject:str, sender:str, recipient:str, smtp_server:str, context=ssl.create_default_context(), include_pdf=False, pdfname:str="Report"):
+    def email(self, user:str, password:str, subject:str, sender:str, recipient:str, smtp_server:str, smtp_port:int, context=ssl.create_default_context(), include_pdf=False, pdfname:str="Report"):
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
         message["From"] = sender
@@ -128,7 +128,7 @@ class Report(Component):
             # Add attachment to message and convert message to string
             message.attach(pdf)
 
-        with smtplib.SMTP_SSL(smtp_server, 465, context=context) as server:
+        with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
             server.login(user, password)
             server.sendmail(sender, recipient, message.as_string())
     
