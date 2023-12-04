@@ -23,13 +23,14 @@ p, h1, h2, h3, h4, h5, h6 {
     display: -webkit-box;
     display: flex;
     -webkit-box-pack: center;
+    justify-content: center;
 }
 
 .HBox > * {
     -webkit-box-flex: 1;
     -webkit-flex: 1;
     flex: 1;
-    
+    width:100%;
 }
 
 .HCenterContent {
@@ -38,6 +39,10 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .Image {
+    width: 100%;
+}
+
+.Map {
     width: 100%;
 }
 
@@ -86,6 +91,7 @@ tr:nth-child(even) {
     .PageBreak {
         page-break-after: always;
     }
+
 }
 
 @media not print {

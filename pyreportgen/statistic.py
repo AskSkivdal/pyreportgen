@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pyreportgen.helpers as helpers
 import uuid
+import os.path as path
 
 class HBarPlot(Component):
     def __init__(self, lables, data, title="", xlabel=""):
@@ -11,7 +12,6 @@ class HBarPlot(Component):
         self.data = data
         self.title = title
         self.xlabel = xlabel
-        self.path = helpers.random_path("png")
 
     def render(self) -> str:
         fig, ax = plt.subplots()
@@ -25,9 +25,11 @@ class HBarPlot(Component):
         ax.set_xlabel(self.xlabel)
         ax.set_title(self.title)
 
-        plt.savefig(self.path, dpi=150)
+        filename = helpers.random_filename("png")
 
-        return helpers.tagwrap("", "img", "HBarPlot", f'src="{self.path.lstrip(_DATA_DIR+"/")}"', close=False)
+        plt.savefig(path.join(_DATA_DIR, filename), dpi=150)
+
+        return helpers.tagwrap("", "img", "HBarPlot", f'src="{filename}"', close=False)
     
 class Table(Component):
     def __init__(self, data: list[list[str]], headers: list[str]=[], footers: list[str]=[]):
