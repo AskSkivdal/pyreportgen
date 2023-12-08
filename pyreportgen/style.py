@@ -50,10 +50,6 @@ p, h1, h2, h3, h4, h5, h6 {
     width: 100%;
 }
 
-.Map {
-    width: 100%;
-}
-
 table {
     border-collapse: collapse;
     width: 100%;

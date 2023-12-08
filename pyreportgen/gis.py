@@ -57,9 +57,9 @@ class Map(Component):
         super().__init__()
         self.bottom_left: tuple[float, float] = (min(bbox[0][0], bbox[1][0]), min(bbox[0][1], bbox[1][1]))
         self.upper_right: tuple[float, float] = (max(bbox[0][0], bbox[1][0]), max(bbox[0][1], bbox[1][1]))
-        self.zoom = 18
-        self.tile_host = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-        self.image: None | Image.Image = None        
+        self.zoom = zoom
+        self.tile_host = tile_host
+        self.image: Image.Image = None        
     
     def make_image(self) -> Image.Image:
         x, y = deg2num(self.bottom_left[0],self.bottom_left[1], self.zoom)
@@ -113,18 +113,17 @@ class Map(Component):
 class MapGeoJson(Map):
     def __init__(self, geojson, zoom=17, tile_host="https://tile.openstreetmap.org/{z}/{x}/{y}.png", padding=0.001):
         coords: list[list[float]] = []
-
+        
         for feature in geojson["features"]:
             geom = feature["geometry"]
-            match geom["type"]:
-                case "Polygon":
+            if geom["type"] == "Polygon":
                     for poly in geom["coordinates"]:
                         for point in poly:
                             coords.append(point.copy())
-                case "LineString":
+            elif geom["type"] == "LineString":
                     for point in geom["coordinates"]:
                         coords.append(point.copy())
-                case "Point":
+            elif geom["type"] == "Point":
                     coords.append(geom["coordinates"].copy())
         
         for c in coords:
@@ -162,30 +161,30 @@ class MapGeoJson(Map):
             if feature["type"] != "Feature":
                 continue
             geom = feature["geometry"]
-            match geom["type"]:
-                case "Point":
-                    geom["coordinates"].reverse()
-                    print(geom["coordinates"])
-                    print(self.bottom_left)
-                    print(self.upper_right)
-                    y, x = translate_coord(geom["coordinates"], self.bottom_left, self.upper_right, (1,0),(0,1))
-                    draw.regular_polygon(((int(x*size[0]), int((y)*size[1])), 6), 128, fill="red")
-                case "LineString":
+            
+            if geom["type"] == "Point":
+                geom["coordinates"].reverse()
+                print(geom["coordinates"])
+                print(self.bottom_left)
+                print(self.upper_right)
+                y, x = translate_coord(geom["coordinates"], self.bottom_left, self.upper_right, (1,0),(0,1))
+                draw.regular_polygon(((int(x*size[0]), int((y)*size[1])), 6), 128, fill="red")
+            elif geom["type"] == "LineString":
+                points = []
+                for i in geom["coordinates"]:
+                    i.reverse()
+                    y, x = translate_coord(i, self.bottom_left, self.upper_right, (1,0), (0, 1))
+                    points.append((int(x*size[0]),int(y*size[1])))
+                print(points)
+                draw.line(points, fill="red", width=6)
+            elif geom["type"] == "Polygon":
+                for poly in geom["coordinates"]:
                     points = []
-                    for i in geom["coordinates"]:
+                    for i in poly:
                         i.reverse()
                         y, x = translate_coord(i, self.bottom_left, self.upper_right, (1,0), (0, 1))
                         points.append((int(x*size[0]),int(y*size[1])))
-                    print(points)
-                    draw.line(points, fill="red", width=6)
-                case "Polygon":
-                    for poly in geom["coordinates"]:
-                        points = []
-                        for i in poly:
-                            i.reverse()
-                            y, x = translate_coord(i, self.bottom_left, self.upper_right, (1,0), (0, 1))
-                            points.append((int(x*size[0]),int(y*size[1])))
-                        draw.polygon(points, fill=None, outline="red", width=6)
+                    draw.polygon(points, fill=None, outline="red", width=6)
         return map
 
     
