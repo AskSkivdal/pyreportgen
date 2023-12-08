@@ -20,7 +20,27 @@ if not (_DATA_DIR in os.listdir()):
 
 _RE_COMBINE_WHITESPACE = re.compile(r"\s+")
 
+class MailAttachment:
+    def __init__(self, path, filename) -> None:
+        self.path = path
+        self.filename = filename
+    
+    def get_attachment(self) -> MIMEBase:
+        with open(self.path, "rb") as attachment:
+            # Add file as application/octet-stream
+            # Email client can usually download this automatically as attachment
+            att = MIMEBase("application", "octet-stream")
+            att.set_payload(attachment.read())
 
+            # Encode file in ASCII characters to send by email    
+            encoders.encode_base64(att)
+
+            # Add header as key/value pair to attachment part
+            att.add_header(
+                "Content-Disposition",
+                f"attachment; filename={self.filename}",
+            )
+            return att
 
 class Report(Component):
     def __init__(self, children:list[Component]=[], style:str=style.STYLE_NORMAL):
@@ -55,12 +75,12 @@ class Report(Component):
         if html == "":
             html = self.render()
 
-        with open(_DATA_DIR+'/out.html', 'w', encoding="UTF-8") as f:
+        with open(os.path.join(_DATA_DIR,'out.html'), 'w', encoding="UTF-8") as f:
             f.write(html)
 
-        pdfkit.from_file(_DATA_DIR+'/out.html', path, options={"--enable-local-file-access":None, "--print-media-type":None})
+        pdfkit.from_file(os.path.join(_DATA_DIR,'out.html'), path, options={"--enable-local-file-access":None, "--print-media-type":None})
     
-    def email(self, user:str, password:str, subject:str, sender:str, recipient:str, smtp_server:str, smtp_port:int, context=ssl.create_default_context(), include_pdf=False, pdfname:str="Report"):
+    def email(self, user:str, password:str, subject:str, sender:str, recipient:str, smtp_server:str, smtp_port:int, context=ssl.create_default_context(), attachments:list[MailAttachment] = []):
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
         message["From"] = sender
@@ -104,29 +124,9 @@ class Report(Component):
             message.attach(msgImage)
 
         
-        if include_pdf:
-
-            # Open PDF file in binary mode
-            self.pdf(f"{_DATA_DIR}/tmp.pdf")
-            with open(f"{_DATA_DIR}/tmp.pdf", "rb") as attachment:
-                # Add file as application/octet-stream
-                # Email client can usually download this automatically as attachment
-                pdf = MIMEBase("application", "octet-stream")
-                pdf.set_payload(attachment.read())
-
-            # Encode file in ASCII characters to send by email    
-            encoders.encode_base64(pdf)
-
-            # Add header as key/value pair to attachment part
-            pdf.add_header(
-                "Content-Disposition",
-                f"attachment; filename={pdfname}.pdf",
-            )
-
-
-
+        for i in attachments:
             # Add attachment to message and convert message to string
-            message.attach(pdf)
+            message.attach(i.get_attachment())
 
         with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
             server.login(user, password)
@@ -181,10 +181,24 @@ class Header(Text):
 class Image(Component):
     def __init__(self, src: str):
         super().__init__()
-        self.src: str = src
+        
+        self.src: str = os.path.abspath(src)
     
     def render(self) -> str:
-        localizer = "../"
-        if self.src.startswith("/"):
-            localizer = ""
-        return helpers.tagwrap("", "img", "Image", f"src='{localizer}{self.src}'", close=False)
+        return helpers.tagwrap("", "img", "Image", f"src='{self.src}'", close=False)
+
+class ConditionalImage(Component):
+    def __init__(self, filepath:str, children:list[Component] = []):
+        super().__init__()
+        self.filepath:str = filepath
+        self.children:list[Component] = children
+    
+    def render(self) -> str:
+        if os.path.isfile(self.filepath):
+            html = helpers.tagwrap("", "img", "Image", f"src='{os.path.abspath(self.filepath)}'", close=False)
+        else:
+            html = ""
+            for i in self.children:
+                html += i.render()
+            html = helpers.tagwrap(html, "div")
+        return html

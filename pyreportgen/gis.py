@@ -91,13 +91,17 @@ class Map(Component):
         full_image = Image.new('RGB',(tile_size*grid_size[0], tile_size*grid_size[1]), (0,0,0))
 
         images = grid_size[0] * grid_size[1]
+        current_image = 0
 
-
+        pb = helpers.ProgressBar(images, "Collecting tiles")
 
         for y, row in enumerate(grid):
             for x, tile in enumerate(row):
+                current_image += 1
                 im = open_image_from_url(tile)
                 full_image.paste(im, (x*tile_size, y*tile_size))
+                pb.print(current_image)
+
 
 
         image_size = full_image.size
@@ -146,7 +150,6 @@ class MapGeoJson(Map):
         upper_right[1] += padding
 
         bbox = [bottom_left, upper_right]
-        print(bbox)
         super().__init__(bbox, zoom, tile_host)
         self.geojson = geojson
         self.padding = padding
@@ -164,9 +167,6 @@ class MapGeoJson(Map):
             
             if geom["type"] == "Point":
                 geom["coordinates"].reverse()
-                print(geom["coordinates"])
-                print(self.bottom_left)
-                print(self.upper_right)
                 y, x = translate_coord(geom["coordinates"], self.bottom_left, self.upper_right, (1,0),(0,1))
                 draw.regular_polygon(((int(x*size[0]), int((y)*size[1])), 6), 128, fill="red")
             elif geom["type"] == "LineString":
@@ -175,7 +175,6 @@ class MapGeoJson(Map):
                     i.reverse()
                     y, x = translate_coord(i, self.bottom_left, self.upper_right, (1,0), (0, 1))
                     points.append((int(x*size[0]),int(y*size[1])))
-                print(points)
                 draw.line(points, fill="red", width=6)
             elif geom["type"] == "Polygon":
                 for poly in geom["coordinates"]:

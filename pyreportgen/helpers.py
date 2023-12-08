@@ -2,6 +2,32 @@ import uuid
 from pyreportgen.base import _DATA_DIR
 import os
 
+class ProgressBar:
+    empty = " "
+    half = "▌"
+    full = "█"
+    bar_length = 60
+    def __init__(self, length:int, title:str = "Progress") -> None:
+        self.length:int = length
+        self.title:str = title
+    
+    def print(self, progress):
+        percentage:float = float(progress)/float(self.length)
+        bar = ""
+
+        chars_to_fill = self.bar_length*percentage
+        full_chars = int(chars_to_fill)
+        half_char = (chars_to_fill-full_chars) > 0.5
+
+        bar += self.full*full_chars
+        if half_char:
+            bar += self.half
+
+        bar = bar.ljust(self.bar_length, self.empty)
+        print(f"\r{self.title} - |{bar}| {str(int(percentage*100)).rjust(3)}% ({progress}/{self.length})", end="")
+        if progress == self.length:
+            print()
+
 def clamp(num, min, max):
     if num < min:
         return min
