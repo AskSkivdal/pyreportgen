@@ -1,11 +1,20 @@
 import uuid
 from pyreportgen.base import _DATA_DIR
 import os
+import sys
+
+
 
 class ProgressBar:
-    empty = " "
-    half = "▌"
-    full = "█"
+    if sys.stdout.encoding == "utf-8":
+        empty = " "
+        half = "▌"
+        full = "█"
+    else:
+        empty = " "
+        half = " "
+        full = "#"
+    
     bar_length = 60
     def __init__(self, length:int, title:str = "Progress") -> None:
         self.length:int = length
