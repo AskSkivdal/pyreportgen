@@ -21,9 +21,10 @@ class Empty(Component):
         return helpers.tagwrap("", "div")
 
 class HBox(Component):
-    def __init__(self, children:list[Component]=[]):
+    def __init__(self, children:list[Component]=[], class_list:list[str]=[]):
         super().__init__()
         self.children:list[Component] = children
+        self.class_list = class_list
     
     def render(self) -> str:
         html = ""
@@ -32,13 +33,14 @@ class HBox(Component):
             html += i.render()
 
         
-        return helpers.tagwrap(html, "div", "HBox")
+        return helpers.tagwrap(html, "div", "HBox "+" ".join(self.class_list))
 
     
 class VBox(Component):
-    def __init__(self, children:list[Component]=[]):
+    def __init__(self, children:list[Component]=[], class_list:list[str]=[]):
         super().__init__()
         self.children:list[Component] = children
+        self.class_list = class_list
     
     def render(self) -> str:
         html = ""
@@ -46,7 +48,7 @@ class VBox(Component):
         for i in self.children:
             html += i.render()
 
-        return helpers.tagwrap(html, "div", "VBox NoBreak")
+        return helpers.tagwrap(html, "div", "VBox NoBreak "+" ".join(self.class_list))
     
 class HCenterContent(Component):
     def __init__(self, child:Component):
@@ -81,4 +83,4 @@ class List(Component):
         for el in self.elements:
             html += helpers.tagwrap(el, "li")
         
-        return helpers.tagwrap(html, element, props=f"start='{self.start}'")
+        return helpers.tagwrap(html, element, props=f"start='{self.start}'", classList="List")

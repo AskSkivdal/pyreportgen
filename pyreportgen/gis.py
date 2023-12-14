@@ -62,21 +62,24 @@ class Map(Component):
         self.image: Image.Image = None        
     
     def make_image(self) -> Image.Image:
-        x, y = deg2num(self.bottom_left[0],self.bottom_left[1], self.zoom)
+        bottom_l_x, bottom_l_y = deg2num(self.bottom_left[0],self.bottom_left[1], self.zoom)
+        top_r_x, top_r_y = deg2num(self.upper_right[0],self.upper_right[1], self.zoom)
 
-        start_xoverflow = (x - int(x))
-        start_yoverflow = (y - int(y))
-        from_tile = list((int(x), int(y)))
+        start_xoverflow = (top_r_x - int(top_r_x))
+        start_yoverflow = (top_r_y - int(top_r_y))
 
-        x, y = deg2num(self.upper_right[0],self.upper_right[1], self.zoom)
 
-        end_xoverflow = 1 - (x - int(x))
-        end_yoverflow = 1 - (y - int(y))
-        to_tile = list((int(x), int(y)))
+        end_xoverflow = (bottom_l_x - int(bottom_l_x))
+        end_yoverflow = (bottom_l_y - int(bottom_l_y))
 
-        from_tile[1], to_tile[1] = to_tile[1], from_tile[1]
 
-        grid_size = (to_tile[0] - from_tile[0] +1, to_tile[1] - from_tile[1] +1)
+        from_tile = list((int(top_r_x), int(top_r_y)))
+        to_tile = list((int(bottom_l_x), int(bottom_l_y)))
+        
+
+
+        grid_size = (from_tile[0] - to_tile[0] +1, to_tile[1] - from_tile[1] +1)
+        print(f"{grid_size}")
 
         tile_size = 256
 
@@ -115,7 +118,7 @@ class Map(Component):
         return helpers.tagwrap("", "img", "Map", f"src='{name}'", False)
 
 class MapGeoJson(Map):
-    def __init__(self, geojson, zoom=17, tile_host="https://tile.openstreetmap.org/{z}/{x}/{y}.png", padding=0.001):
+    def __init__(self, geojson, zoom=17, tile_host="https://tile.openstreetmap.org/{z}/{x}/{y}.png"):
         coords: list[list[float]] = []
         
         for feature in geojson["features"]:
@@ -135,27 +138,53 @@ class MapGeoJson(Map):
 
         bottom_left = coords[0].copy()
         upper_right = coords[0].copy()
-
+        
         for c in coords:
             bottom_left[0] = min(bottom_left[0], c[0])
             bottom_left[1] = min(bottom_left[1], c[1])
 
             upper_right[0] = max(upper_right[0], c[0])
             upper_right[1] = max(upper_right[1], c[1])
-        
-        bottom_left[0] -= padding
-        bottom_left[1] -= padding
 
-        upper_right[0] += padding
-        upper_right[1] += padding
+        bl_tile = list(deg2num(bottom_left[0], bottom_left[1], zoom))
+        ur_tile = list(deg2num(upper_right[0], upper_right[1], zoom))
+        # Y flips here. Make sure to flip it back.
+        bl_tile[1], ur_tile[1] = ur_tile[1], bl_tile[1]
+
+        tile_size = [ur_tile[0] - bl_tile[0], (ur_tile[1] - bl_tile[1])]
+        min_idx = tile_size.index(min(tile_size))
+        size_diff = tile_size[1-min_idx] - tile_size[min_idx]
+        size_pad = size_diff/2
+
+
+        bl_tile[min_idx] -= size_pad
+        ur_tile[min_idx] += size_pad
+
+        # Flipping y back.
+        bl_tile[1], ur_tile[1] = ur_tile[1], bl_tile[1]
+
+
+        bottom_left = list(num2deg(bl_tile[0], bl_tile[1], zoom))
+        upper_right = list(num2deg(ur_tile[0], ur_tile[1], zoom))
+
+        print(bottom_left)
+        print(upper_right)
+
+        
+        #bottom_left[0] -= padding
+        #bottom_left[1] -= padding
+
+        #upper_right[0] += padding
+        #upper_right[1] += padding
 
         bbox = [bottom_left, upper_right]
         super().__init__(bbox, zoom, tile_host)
         self.geojson = geojson
-        self.padding = padding
+  
 
     def make_image(self):
         map = super().make_image()
+        return map
         size = map.size
 
         draw = ImageDraw.Draw(map)
