@@ -186,7 +186,7 @@ class Image(Component):
     
     def render(self) -> str:
         return helpers.tagwrap("", "img", "Image", f"src='{self.src}'", close=False)
-
+    
 class ConditionalImage(Component):
     def __init__(self, filepath:str, children:list[Component] = []):
         super().__init__()
