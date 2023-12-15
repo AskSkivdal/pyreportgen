@@ -79,7 +79,6 @@ class Map(Component):
 
 
         grid_size = (from_tile[0] - to_tile[0] +1, to_tile[1] - from_tile[1] +1)
-        print(f"{grid_size}")
 
         tile_size = 256
 
@@ -167,8 +166,6 @@ class MapGeoJson(Map):
         bottom_left = list(num2deg(bl_tile[0], bl_tile[1], zoom))
         upper_right = list(num2deg(ur_tile[0], ur_tile[1], zoom))
 
-        print(bottom_left)
-        print(upper_right)
 
         
         #bottom_left[0] -= padding
