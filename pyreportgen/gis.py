@@ -83,7 +83,6 @@ class MapGeoJson():
   
 
     def make_image(self):
-        print(self.geojson)
         # Set up the matplotlib figure and axis
         fig, ax = plt.subplots(figsize=(20, 20))
 
