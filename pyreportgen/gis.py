@@ -5,6 +5,11 @@ import math
 from io import BytesIO
 import requests
 import os.path as path
+import contextily as cx
+import matplotlib.pyplot as plt
+import geopandas as gpd
+from shapely.geometry import shape
+import time
 
 def deg2num(lat_deg, lon_deg, zoom):
   lat_rad = math.radians(lat_deg)
@@ -53,8 +58,10 @@ def open_image_from_url(url):
         return Image.new("RGB", (1, 1), color="black")
 
 class Map(Component):
+    ## bbox: ((latitude, longditude), (latitude, longditude))
     def __init__(self, bbox: tuple[tuple[float, float], tuple[float, float]], zoom=18, tile_host="https://tile.openstreetmap.org/{z}/{x}/{y}.png"):
         super().__init__()
+        print("This component is still not done.")
         self.bottom_left: tuple[float, float] = (min(bbox[0][0], bbox[1][0]), min(bbox[0][1], bbox[1][1]))
         self.upper_right: tuple[float, float] = (max(bbox[0][0], bbox[1][0]), max(bbox[0][1], bbox[1][1]))
         self.zoom = zoom
@@ -62,155 +69,37 @@ class Map(Component):
         self.image: Image.Image = None        
     
     def make_image(self) -> Image.Image:
-        bottom_l_x, bottom_l_y = deg2num(self.bottom_left[0],self.bottom_left[1], self.zoom)
-        top_r_x, top_r_y = deg2num(self.upper_right[0],self.upper_right[1], self.zoom)
-
-        start_xoverflow = (top_r_x - int(top_r_x))
-        start_yoverflow = (top_r_y - int(top_r_y))
-
-
-        end_xoverflow = (bottom_l_x - int(bottom_l_x))
-        end_yoverflow = (bottom_l_y - int(bottom_l_y))
-
-
-        from_tile = list((int(top_r_x), int(top_r_y)))
-        to_tile = list((int(bottom_l_x), int(bottom_l_y)))
+        # Get the corners as tile numbers.
         
 
-
-        grid_size = (from_tile[0] - to_tile[0] +1, to_tile[1] - from_tile[1] +1)
-
-        tile_size = 256
-
-        grid = [
-            [
-                self.tile_host.format(z=self.zoom,x=int(x), y=int(y)) 
-                for x in range(from_tile[0], to_tile[0]+1)
-            ] 
-            for y in range(from_tile[1], to_tile[1]+1)
-            ]
-
-        full_image = Image.new('RGB',(tile_size*grid_size[0], tile_size*grid_size[1]), (0,0,0))
-
-        images = grid_size[0] * grid_size[1]
-        current_image = 0
-
-        pb = helpers.ProgressBar(images, "Collecting tiles")
-
-        for y, row in enumerate(grid):
-            for x, tile in enumerate(row):
-                current_image += 1
-                im = open_image_from_url(tile)
-                full_image.paste(im, (x*tile_size, y*tile_size))
-                pb.print(current_image)
-
-
-
-        image_size = full_image.size
-        cropped = full_image.crop((int(tile_size*start_xoverflow),int(tile_size*start_yoverflow),image_size[0]-int(tile_size * end_xoverflow),image_size[1]-int(tile_size * end_yoverflow)))
-        return cropped
+        return None
     
-    def render(self) -> str:
-        self.image = self.make_image()
-        name = helpers.random_filename("png")
-        self.image.save(path.join(_DATA_DIR, name))
-        return helpers.tagwrap("", "img", "Map", f"src='{name}'", False)
+   
 
-class MapGeoJson(Map):
-    def __init__(self, geojson, zoom=17, tile_host="https://tile.openstreetmap.org/{z}/{x}/{y}.png"):
-        coords: list[list[float]] = []
-        
-        for feature in geojson["features"]:
-            geom = feature["geometry"]
-            if geom["type"] == "Polygon":
-                    for poly in geom["coordinates"]:
-                        for point in poly:
-                            coords.append(point.copy())
-            elif geom["type"] == "LineString":
-                    for point in geom["coordinates"]:
-                        coords.append(point.copy())
-            elif geom["type"] == "Point":
-                    coords.append(geom["coordinates"].copy())
-        
-        for c in coords:
-            c.reverse()
-
-        bottom_left = coords[0].copy()
-        upper_right = coords[0].copy()
-        
-        for c in coords:
-            bottom_left[0] = min(bottom_left[0], c[0])
-            bottom_left[1] = min(bottom_left[1], c[1])
-
-            upper_right[0] = max(upper_right[0], c[0])
-            upper_right[1] = max(upper_right[1], c[1])
-
-        bl_tile = list(deg2num(bottom_left[0], bottom_left[1], zoom))
-        ur_tile = list(deg2num(upper_right[0], upper_right[1], zoom))
-        # Y flips here. Make sure to flip it back.
-        bl_tile[1], ur_tile[1] = ur_tile[1], bl_tile[1]
-
-        tile_size = [ur_tile[0] - bl_tile[0], (ur_tile[1] - bl_tile[1])]
-        min_idx = tile_size.index(min(tile_size))
-        size_diff = tile_size[1-min_idx] - tile_size[min_idx]
-        size_pad = size_diff/2
-
-
-        bl_tile[min_idx] -= size_pad
-        ur_tile[min_idx] += size_pad
-
-        # Flipping y back.
-        bl_tile[1], ur_tile[1] = ur_tile[1], bl_tile[1]
-
-
-        bottom_left = list(num2deg(bl_tile[0], bl_tile[1], zoom))
-        upper_right = list(num2deg(ur_tile[0], ur_tile[1], zoom))
-
-
-        
-        #bottom_left[0] -= padding
-        #bottom_left[1] -= padding
-
-        #upper_right[0] += padding
-        #upper_right[1] += padding
-
-        bbox = [bottom_left, upper_right]
-        super().__init__(bbox, zoom, tile_host)
+class MapGeoJson():
+    def __init__(self, geojson, tile_host="https://tile.openstreetmap.org/{z}/{x}/{y}.png"):
+        self.tile_host = tile_host
         self.geojson = geojson
   
 
     def make_image(self):
-        map = super().make_image()
-        return map
-        size = map.size
-
-        draw = ImageDraw.Draw(map)
+        print(self.geojson)
+        # Set up the matplotlib figure and axis
+        fig, ax = plt.subplots(figsize=(20, 20))
 
         for feature in self.geojson["features"]:
             if feature["type"] != "Feature":
                 continue
             geom = feature["geometry"]
             
-            if geom["type"] == "Point":
-                geom["coordinates"].reverse()
-                y, x = translate_coord(geom["coordinates"], self.bottom_left, self.upper_right, (1,0),(0,1))
-                draw.regular_polygon(((int(x*size[0]), int((y)*size[1])), 6), 128, fill="red")
-            elif geom["type"] == "LineString":
-                points = []
-                for i in geom["coordinates"]:
-                    i.reverse()
-                    y, x = translate_coord(i, self.bottom_left, self.upper_right, (1,0), (0, 1))
-                    points.append((int(x*size[0]),int(y*size[1])))
-                draw.line(points, fill="red", width=6)
-            elif geom["type"] == "Polygon":
-                for poly in geom["coordinates"]:
-                    points = []
-                    for i in poly:
-                        i.reverse()
-                        y, x = translate_coord(i, self.bottom_left, self.upper_right, (1,0), (0, 1))
-                        points.append((int(x*size[0]),int(y*size[1])))
-                    draw.polygon(points, fill=None, outline="red", width=6)
-        return map
+            gdf = gpd.GeoDataFrame({'geometry': [shape(geom)]}, crs='EPSG:4326')
+            gdf.plot(facecolor='none', edgecolor='red', linewidth=2, ax=ax)
+
+        ax.set_box_aspect(1)
+        plt.axis('off')
+        cx.add_basemap(ax=ax, crs='EPSG:4326', source=self.tile_host, zoom=18)
+        plt.savefig(path.join(_DATA_DIR, "tmp.png"), bbox_inches="tight")
+        return Image.open(path.join(_DATA_DIR, "tmp.png"))
 
     
     def render(self) -> str:
