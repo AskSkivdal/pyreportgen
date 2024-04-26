@@ -4,7 +4,7 @@ readme = open("./readme.md").read()
 
 setup(
     name="pyreportgen",
-    version="0.1.16",
+    version="0.1.17",
     description="A package for creating reports and other pdf documents.",
     long_description=readme,
     long_description_content_type='text/markdown',

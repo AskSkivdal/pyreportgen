@@ -186,7 +186,7 @@ class Image(Component):
             self.src = src
         else:
 
-            self.src: str = f"file://{os.path.abspath(src)}"
+            self.src: str = f"file:///{os.path.abspath(src)}"
     
     def render(self) -> str:
         return helpers.tagwrap("", "img", "Image", f"src='{self.src}'", close=False)
@@ -199,7 +199,7 @@ class ConditionalImage(Component):
     
     def render(self) -> str:
         if os.path.isfile(self.filepath):
-            html = helpers.tagwrap("", "img", "Image", f"src='file://{os.path.abspath(self.filepath)}'", close=False)
+            html = helpers.tagwrap("", "img", "Image", f"src='file:///{os.path.abspath(self.filepath)}'", close=False)
         else:
             html = ""
             for i in self.children:
